@@ -32,14 +32,14 @@ import java.util.List;
 @RestController
 public class WebhookController {
 
-    private final WebhookBot telegramBot;
+
     private final QrCode bot;
 
     int count = 0;
 
     @Autowired
-    public WebhookController(TelegramBotConfig telegramBotConfig, QrCode bot) {
-        this.telegramBot = new QrCode(telegramBotConfig);
+    public WebhookController(QrCode bot) {
+
         this.bot = bot;
     }
 
