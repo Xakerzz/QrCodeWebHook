@@ -35,6 +35,8 @@ public class WebhookController {
     private final WebhookBot telegramBot;
     private final QrCode bot;
 
+    int count = 0;
+
     @Autowired
     public WebhookController(TelegramBotConfig telegramBotConfig, QrCode bot) {
         this.telegramBot = new QrCode(telegramBotConfig);
@@ -59,7 +61,10 @@ public class WebhookController {
             sendTextMessage(id, " ✅QrCode успешно создан");
             doQrCode(id, update.getMessage().getText());
             sendTextMessage(id, "Создадим еще один❔");
-
+count++;
+if ((count & 3) == 0){
+    sendTextMessage(id, "В благодарность ты можешь подписаться на два моих канала ---> https://t.me/CalmHorizons  и  https://t.me/BraveSails");
+}
         }
 
 
