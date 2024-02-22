@@ -38,7 +38,7 @@ public class WebhookController {
     int count = 0;
 
     @Autowired
-    public WebhookController(QrCode bot) {
+    public WebhookController( QrCode bot) {
 
         this.bot = bot;
     }
@@ -46,6 +46,7 @@ public class WebhookController {
 
     @PostMapping("/")
     public BotApiMethod<?> onUpdateReceived(@RequestBody Update update) {
+
         Message message = update.getMessage();
 
 
@@ -63,7 +64,7 @@ public class WebhookController {
             sendTextMessage(id, "Создадим еще один❔");
 count++;
 if ((count & 3) == 0){
-    sendTextMessage(id, "В благодарность ты можешь подписаться на два моих канала ---> https://t.me/CalmHorizons  и  https://t.me/BraveSails");
+    sendTextMessage(id, "В благодарность ты можешь подписаться на два моих канала ---> https://t.me/CalmHorizons  и  ");
 }
         }
 

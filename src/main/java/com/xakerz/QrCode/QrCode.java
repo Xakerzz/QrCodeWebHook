@@ -4,9 +4,12 @@ import org.springframework.context.annotation.Configuration;
 import org.telegram.telegrambots.bots.TelegramWebhookBot;
 import org.telegram.telegrambots.meta.api.methods.BotApiMethod;
 import org.telegram.telegrambots.meta.api.methods.send.SendAudio;
+import org.telegram.telegrambots.meta.api.methods.send.SendMessage;
 import org.telegram.telegrambots.meta.api.objects.InputFile;
 import org.telegram.telegrambots.meta.api.objects.Update;
 import org.telegram.telegrambots.meta.exceptions.TelegramApiException;
+
+import java.lang.reflect.Method;
 
 
 @Configuration
@@ -22,6 +25,7 @@ public class QrCode extends TelegramWebhookBot {
         this.telegramBotConfig = telegramBotConfig;
     }
 
+
     @Override
     public String getBotUsername() {
         return telegramBotConfig.getUserName();
@@ -34,13 +38,7 @@ public class QrCode extends TelegramWebhookBot {
 
     @Override
     public  BotApiMethod<?> onWebhookUpdateReceived(Update update) {
-        System.out.println("привет1");
-        if (update.hasMessage() && update.getMessage().hasText()) {
 
-
-
-
-        }
         return null;
     }
 
@@ -59,8 +57,12 @@ public class QrCode extends TelegramWebhookBot {
         }
     }
 
+
     @Override
     public String getBotPath() {
         return telegramBotConfig.getWebHookPath();
     }
+
+
 }
+
