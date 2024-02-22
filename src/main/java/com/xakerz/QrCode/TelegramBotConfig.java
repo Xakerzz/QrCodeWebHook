@@ -1,22 +1,31 @@
 package com.xakerz.QrCode;
-
 import lombok.AccessLevel;
 import lombok.Getter;
 import lombok.experimental.FieldDefaults;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
 
-@Component
+@Component // Добавьте аннотацию @Component
 @Getter
 @FieldDefaults(level = AccessLevel.PRIVATE)
 public class TelegramBotConfig {
+    @Value("${telegrambot.webHookPath}")
     String webHookPath;
+    @Value("${telegrambot.userName}")
     String userName;
+    @Value("${telegrambot.botToken}")
     String botToken;
 
-    public TelegramBotConfig() {
-        this.webHookPath = "https://9c06-185-105-91-13.ngrok-free.app";
-        this.userName = "@QrCoadeBot";
-        this.botToken = "7132557561:AAFmHtQM0lJWxM2sgGF9oyhFfWTlBbZH3zk";
+    public void setWebHookPath(String webHookPath) {
+        this.webHookPath = webHookPath;
+    }
+
+    public void setUserName(String userName) {
+        this.userName = userName;
+    }
+
+    public void setBotToken(String botToken) {
+        this.botToken = botToken;
     }
 
     public String getWebHookPath() {
