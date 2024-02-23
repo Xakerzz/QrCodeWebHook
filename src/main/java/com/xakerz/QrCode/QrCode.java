@@ -87,7 +87,7 @@ public class QrCode extends TelegramWebhookBot {
                 sendTextMessage(id, "В благодарность ты можешь подписаться на два моих канала ---> https://t.me/CalmHorizons  и  ");
             }
         }
-        return null;
+        return telegramFacade.handleUpdate(update);
     }
 
     private void messageText(Long chatId, String newTextForMessage, String newTextForButtonOne, String newTextForCallbackOne, String newTextForButtonTwo, String newTextForCallbackTwo) {
