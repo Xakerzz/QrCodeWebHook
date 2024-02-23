@@ -48,6 +48,7 @@ public class QrCode extends TelegramWebhookBot {
         super(options, String.valueOf(setWebhook));
         this.telegramFacade = telegramFacade;
     }
+    @Autowired
     public QrCode(TelegramFacade telegramFacade, SetWebhook setWebhook) {
         super(String.valueOf(setWebhook));
         this.telegramFacade = telegramFacade;
