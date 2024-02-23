@@ -6,6 +6,7 @@ import lombok.Setter;
 import lombok.experimental.FieldDefaults;
 import net.glxn.qrgen.QRCode;
 import net.glxn.qrgen.image.ImageType;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.telegram.telegrambots.bots.DefaultBotOptions;
 import org.telegram.telegrambots.bots.TelegramWebhookBot;
 import org.telegram.telegrambots.meta.api.methods.BotApiMethod;
@@ -42,7 +43,7 @@ public class QrCode extends TelegramWebhookBot {
     private final TelegramBotConfig telegramBotConfig = new TelegramBotConfig();
 
     private TelegramFacade telegramFacade;
-
+    @Autowired
     public QrCode(TelegramFacade telegramFacade, DefaultBotOptions options, SetWebhook setWebhook) {
         super(options, String.valueOf(setWebhook));
         this.telegramFacade = telegramFacade;
