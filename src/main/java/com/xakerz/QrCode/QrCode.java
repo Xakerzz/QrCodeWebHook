@@ -1,19 +1,11 @@
 package com.xakerz.QrCode;
 
-import lombok.AccessLevel;
-import lombok.Getter;
-import lombok.Setter;
-import lombok.experimental.FieldDefaults;
 import net.glxn.qrgen.QRCode;
 import net.glxn.qrgen.image.ImageType;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.telegram.telegrambots.bots.DefaultBotOptions;
-import org.telegram.telegrambots.bots.TelegramWebhookBot;
-import org.telegram.telegrambots.meta.api.methods.BotApiMethod;
+import org.telegram.telegrambots.bots.TelegramLongPollingBot;
 import org.telegram.telegrambots.meta.api.methods.send.SendAudio;
 import org.telegram.telegrambots.meta.api.methods.send.SendMessage;
 import org.telegram.telegrambots.meta.api.methods.send.SendPhoto;
-import org.telegram.telegrambots.meta.api.methods.updates.SetWebhook;
 import org.telegram.telegrambots.meta.api.objects.InputFile;
 import org.telegram.telegrambots.meta.api.objects.Message;
 import org.telegram.telegrambots.meta.api.objects.Update;
@@ -27,68 +19,57 @@ import java.io.FileOutputStream;
 import java.io.IOException;
 import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
 
-@Getter
-@Setter
-@FieldDefaults(level = AccessLevel.PRIVATE)
-public class QrCode extends TelegramWebhookBot {
-    String botPath;
-    String botUsername;
-    String botToken;
 
+public class QrCode extends TelegramLongPollingBot {
 
     int count = 0;
+HashMap<Long, Integer> counterList = new HashMap<>();
 
-    private final TelegramBotConfig telegramBotConfig = new TelegramBotConfig();
-
-    private TelegramFacade telegramFacade;
-    @Autowired
-    public QrCode(TelegramFacade telegramFacade, DefaultBotOptions options, SetWebhook setWebhook) {
-        super(options, String.valueOf(setWebhook));
-        this.telegramFacade = telegramFacade;
-    }
-    @Autowired
-    public QrCode(TelegramFacade telegramFacade, SetWebhook setWebhook) {
-        super(String.valueOf(setWebhook));
-        this.telegramFacade = telegramFacade;
-    }
 
 
     @Override
     public String getBotUsername() {
-        return telegramBotConfig.getUserName();
+        return "@QrCoadeBo";
     }
 
     @Override
     public String getBotToken() {
-        return telegramBotConfig.getBotToken();
+        return "7132557561:AAFmHtQM0lJWxM2sgGF9oyhFfWTlBbZH3zk";
     }
-
     @Override
-    public  BotApiMethod<?> onWebhookUpdateReceived(Update update) {
+    public void onUpdateReceived(Update update) {
         Message message = update.getMessage();
-
+Client client = new Client();
+client.setId(message.getChatId());
+if (counterList.containsKey(client.getId())) {
+    client.setCounter(counterList.get(client.getId()));
+} else {
+    counterList.put(client.getId(), client.getCounter());
+}
 
         if (update.hasMessage() && update.getMessage().hasText() && update.getMessage().getText().equals("/start")) {
-            long id = message.getChatId();
 
 
-            sendTextMessage(id, "Теперь можно отправить ссылку и бот сделает QrCode для неё.");
+
+            sendTextMessage(client.getId(), "Теперь можно отправить ссылку и бот сделает QrCode для неё.");
 
 
         } else if (update.hasMessage() && update.getMessage().hasText() && !update.getMessage().getText().equals("/start")) {
             long id = message.getChatId();
-            sendTextMessage(id, " ✅QrCode успешно создан");
-            doQrCode(id, update.getMessage().getText());
+            sendTextMessage(client.getId(), " ✅QrCode успешно создан");
+            doQrCode(client.getId(), update.getMessage().getText());
             sendTextMessage(id, "Создадим еще один❔");
-            count++;
-            if ((count & 3) == 0){
-                sendTextMessage(id, "В благодарность ты можешь подписаться на два моих канала ---> https://t.me/CalmHorizons  и  ");
+            client.counter++;
+            counterList.put(client.getId(), client.getCounter());
+            if ((client.getCounter() & 2) == 0){
+                sendTextMessage(client.getId(), "В благодарность ты можешь подписаться на два моих канала \n ---> \uD83D\uDC49 https://t.me/CalmHorizons \uD83D\uDC48 \n и  ---> \uD83D\uDC49 https://t.me/BraveSails \uD83D\uDC48");
             }
         }
-        return telegramFacade.handleUpdate(update);
     }
+
 
     private void messageText(Long chatId, String newTextForMessage, String newTextForButtonOne, String newTextForCallbackOne, String newTextForButtonTwo, String newTextForCallbackTwo) {
 
@@ -191,22 +172,5 @@ public class QrCode extends TelegramWebhookBot {
 
     }
 
-
-
-
-    @Override
-    public String getBotPath() {
-        return telegramBotConfig.getWebHookPath();
-    }
-
-
-    public void setBotToken(String botToken) {
-    }
-
-    public void setBotUsername(String userName) {
-    }
-
-    public void setBotPath(String webHookPath) {
-    }
 }
 
