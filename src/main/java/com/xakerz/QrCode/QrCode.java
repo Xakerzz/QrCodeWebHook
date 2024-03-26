@@ -3,12 +3,17 @@ package com.xakerz.QrCode;
 import net.glxn.qrgen.QRCode;
 import net.glxn.qrgen.image.ImageType;
 import org.telegram.telegrambots.bots.TelegramLongPollingBot;
+import org.telegram.telegrambots.meta.api.methods.AnswerCallbackQuery;
+import org.telegram.telegrambots.meta.api.methods.groupadministration.GetChatMember;
 import org.telegram.telegrambots.meta.api.methods.send.SendAudio;
 import org.telegram.telegrambots.meta.api.methods.send.SendMessage;
 import org.telegram.telegrambots.meta.api.methods.send.SendPhoto;
+import org.telegram.telegrambots.meta.api.methods.updatingmessages.DeleteMessage;
+import org.telegram.telegrambots.meta.api.objects.CallbackQuery;
 import org.telegram.telegrambots.meta.api.objects.InputFile;
 import org.telegram.telegrambots.meta.api.objects.Message;
 import org.telegram.telegrambots.meta.api.objects.Update;
+import org.telegram.telegrambots.meta.api.objects.chatmember.ChatMember;
 import org.telegram.telegrambots.meta.api.objects.replykeyboard.InlineKeyboardMarkup;
 import org.telegram.telegrambots.meta.api.objects.replykeyboard.buttons.InlineKeyboardButton;
 import org.telegram.telegrambots.meta.exceptions.TelegramApiException;
@@ -21,55 +26,144 @@ import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 
 public class QrCode extends TelegramLongPollingBot {
 
-    int count = 0;
-HashMap<Long, Integer> counterList = new HashMap<>();
 
+    static Map<Long, Integer> lastMessageIds = new HashMap<>();
+    static final long channelId = -1002053569829L;
 
 
     @Override
     public String getBotUsername() {
-        return "@QrCoadeBo";
+        return "@QrCoadeBot";
     }
 
     @Override
     public String getBotToken() {
         return "7132557561:AAFmHtQM0lJWxM2sgGF9oyhFfWTlBbZH3zk";
     }
+
     @Override
     public void onUpdateReceived(Update update) {
-        Message message = update.getMessage();
-Client client = new Client();
-client.setId(message.getChatId());
-if (counterList.containsKey(client.getId())) {
-    client.setCounter(counterList.get(client.getId()));
-} else {
-    counterList.put(client.getId(), client.getCounter());
-}
+        Client client = new Client();
+        String callBackData;
+        if (update.hasMessage()) {
+            Message message = update.getMessage();
 
-        if (update.hasMessage() && update.getMessage().hasText() && update.getMessage().getText().equals("/start")) {
-
-
-
-            sendTextMessage(client.getId(), "Теперь можно отправить ссылку и бот сделает QrCode для неё.");
+            client.setId(message.getChatId());
+        } else if (update.hasCallbackQuery()) {
+            CallbackQuery callbackQuery = update.getCallbackQuery();
+             callBackData = callbackQuery.getData();
+            client.setId(callbackQuery.getMessage().getChatId());
+        }
 
 
-        } else if (update.hasMessage() && update.getMessage().hasText() && !update.getMessage().getText().equals("/start")) {
-            long id = message.getChatId();
-            sendTextMessage(client.getId(), " ✅QrCode успешно создан");
-            doQrCode(client.getId(), update.getMessage().getText());
-            sendTextMessage(id, "Создадим еще один❔");
-            client.counter++;
-            counterList.put(client.getId(), client.getCounter());
-            if ((client.getCounter() & 2) == 0){
-                sendTextMessage(client.getId(), "В благодарность ты можешь подписаться на два моих канала \n ---> \uD83D\uDC49 https://t.me/CalmHorizons \uD83D\uDC48 \n и  ---> \uD83D\uDC49 https://t.me/BraveSails \uD83D\uDC48");
+        if (!lastMessageIds.isEmpty()) {
+            deleteMessageText(client.getId(), lastMessageIds.get(client.getId()));
+        }
+        boolean check = checkChannelSubscription(String.valueOf(channelId), client.getId());
+        if (check) {
+
+            if (update.hasMessage() && update.getMessage().hasText() && update.getMessage().getText().equals("/start")) {
+
+
+                sendTextMessage(client.getId(), "Теперь можно отправить ссылку и бот сделает QrCode для неё.");
+
+
+            } else if (update.hasMessage() && update.getMessage().hasText() && !update.getMessage().getText().equals("/start")) {
+                long id = client.getId();
+                sendTextMessage(client.getId(), " ✅QrCode успешно создан");
+                doQrCode(client.getId(), update.getMessage().getText());
+                sendTextMessage(id, "Создадим еще один❔");
+            }else if (update.hasCallbackQuery()) {
+                CallbackQuery callbackQuery = update.getCallbackQuery();
+                callBackData = callbackQuery.getData();
+                if (callBackData.equals("didSub")){
+
+
+                        sendTextMessage(client.getId(), "Теперь можно отправить ссылку и бот сделает QrCode для неё.");
+
+
+
+                }
             }
+        }  else if (!check){
+
+            keyboardSub(client.id);
+
+
+            System.out.println(check);
+        }
+
+    }
+
+    private void keyboardSub(long id) {
+        InlineKeyboardMarkup markupInline = new InlineKeyboardMarkup();
+        List<List<InlineKeyboardButton>> rowsInline = new ArrayList<>();
+        List<InlineKeyboardButton> rowInline = new ArrayList<>();
+
+
+        InlineKeyboardButton inlineKeyboardButton = new InlineKeyboardButton();
+        inlineKeyboardButton.setText("Подписаться на канал");
+        inlineKeyboardButton.setUrl("https://t.me/psycholog_y_ya");
+
+        InlineKeyboardButton inlineKeyboardButton1 = new InlineKeyboardButton();
+        inlineKeyboardButton1.setText("Я подписалась(ся)");
+        inlineKeyboardButton1.setCallbackData("didSub");
+
+
+        rowInline.add(inlineKeyboardButton1);
+        rowInline.add(inlineKeyboardButton);
+
+
+        rowsInline.add(rowInline);
+
+        markupInline.setKeyboard(rowsInline);
+
+// Создаем объект SendMessage для отправки сообщения с кнопкой
+        SendMessage messageRoll = new SendMessage();
+        messageRoll.setChatId(id);
+        messageRoll.setText("Чтобы сделать QrCode вам необходимо подписаться на наш канал");
+        messageRoll.setReplyMarkup(markupInline);
+
+        try {
+            Message sentMessage = execute(messageRoll);
+            lastMessageIds.put(id, sentMessage.getMessageId());
+        } catch (TelegramApiException e) {
+            e.printStackTrace();
+        }
+
+
+    }
+
+    private void deleteMessageText(Long chatId, int messageId) {
+
+        DeleteMessage sendMessage = new DeleteMessage();
+        sendMessage.setChatId(chatId);
+        sendMessage.setMessageId(messageId);
+
+
+        try {
+            execute(sendMessage);
+        } catch (TelegramApiException e) {
+            System.out.println(e.getMessage());
         }
     }
 
+    public boolean checkChannelSubscription(String channelId, long userId) {
+        GetChatMember getChatMemberRequest = new GetChatMember(channelId, userId);
+
+        try {
+            ChatMember chatMember = execute(getChatMemberRequest);
+            return chatMember.getStatus().equals("member") || chatMember.getStatus().equals("administrator") || chatMember.getStatus().equals("creator");
+        } catch (TelegramApiException e) {
+            e.printStackTrace();
+            return false;
+        }
+    }
 
     private void messageText(Long chatId, String newTextForMessage, String newTextForButtonOne, String newTextForCallbackOne, String newTextForButtonTwo, String newTextForCallbackTwo) {
 
@@ -116,7 +210,8 @@ if (counterList.containsKey(client.getId())) {
         sendMessage.setChatId(chatId);
         sendMessage.setText(textMessage);
         try {
-            execute(sendMessage);
+            Message sentMessage = execute(sendMessage);
+            lastMessageIds.put(chatId, sentMessage.getMessageId());
         } catch (TelegramApiException e) {
             throw new RuntimeException(e);
         }
