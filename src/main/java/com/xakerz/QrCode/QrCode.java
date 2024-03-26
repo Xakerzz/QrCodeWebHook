@@ -38,12 +38,12 @@ public class QrCode extends TelegramLongPollingBot {
 
     @Override
     public String getBotUsername() {
-        return "xakerz_Bot";
+        return "@QrCoadeBot";
     }
 
     @Override
     public String getBotToken() {
-        return "5994666145:AAF606nhEp2R5_EBcKgDPQqq2f_Vu_JgtMQ"; //"7132557561:AAFmHtQM0lJWxM2sgGF9oyhFfWTlBbZH3zk";
+        return "7132557561:AAFmHtQM0lJWxM2sgGF9oyhFfWTlBbZH3zk";
     }
 
     @Override
